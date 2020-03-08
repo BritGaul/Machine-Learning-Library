@@ -1,0 +1,169 @@
+\documentclass[12pt, fullpage,letterpaper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{url}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{xspace}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+
+\newcommand{\semester}{Spring 2020}
+\newcommand{\assignmentId}{3}
+\newcommand{\releaseDate}{25 Feb, 2020}
+\newcommand{\dueDate}{11:59pm, 7 Mar, 2020}
+
+\newcommand{\bx}{{\bf x}}
+\newcommand{\bw}{{\bf w}}
+
+\title{CS 5350/6350: Machine Learining \semester}
+\author{Homework \assignmentId}
+\date{Handed out: \releaseDate\\
+	Due: \dueDate}
+
+
+\title{CS 5350/6350: Machine Learning \semester}
+\author{Homework \assignmentId}
+\date{Handed out: \releaseDate\\
+  Due date: \dueDate}
+\author{Homework \assignmentId \\* Britton Gaul \\* u0915408}
+
+\begin{document}
+\maketitle
+
+\input{emacscomm}
+\newcommand{\Hcal}{\mathcal{H}} 
+
+
+\section{Paper Problems [40 points + 10 bonus]}
+\begin{enumerate}
+	\item~
+	\begin{enumerate}
+	\item~
+	\newline Yes there is a margin, because the no points are located on the hyperplane and are classified correctly. 
+	\newline formula used: $d(x, h)=\frac{\abs{w^T x+ b}}{\abs{w}}$
+	\newline $minimum$ $margin = \frac{1}{\sqrt{13}}$
+	
+	
+	\item~
+	\newline The hyperplane does not have a margin for this dataset, because the last training example is missclassified. 
+	
+	\end{enumerate}
+	
+
+		\item~  
+		\begin{enumerate}
+			
+			
+			\item~ The margin can be calculated from this dataset. 
+			\newline $margin = \frac{\sqrt{2}}{2}$
+			
+			\item~
+			\newline The margin cannot be calculated from this dataset, becasue the data is not seperable. 
+			
+		\end{enumerate}
+	
+	\item ~
+	\begin{enumerate}
+		\item~
+		\newline The upper bound for the number of mistakes made by the Perceptron algorithm is $\frac{R}{\gamma^2}$.
+		\newline If $u$ is not a unit vector then the bound becomes $\frac{R^2\abs{\abs{u}}^2}{\gamma^2}$
+		\newline This is becasue of the equation:
+		\newline $u^Tw_t=\abs{\abs{u}}\abs{\abs{w_t}}cos\theta$ with t mistakes
+		\newline The equation:
+		\newline $\sqrt{t}R\ge \abs{\abs{w_t}} \ge \frac{u^Tw_t}{\abs{\abs{u}}} \ge \frac{t\gamma}{\abs{\abs{u}}} = t \le \frac{R^2\abs{\abs{u}}^2}{\gamma^2}$ can be formed
+
+		\item~
+		\newline The margin requirement should be increased, $\forall i, y_i(u^Tx_i) \ge \abs{\abs{u}}\gamma$.
+
+		\item~
+		\newline By using the second assumption it can be stated that there exists $h : w^Tx=0$, which can seperate the data with margin $\gamma$.
+		\newline $\frac{\abs{w^Tx^i}}{\abs{\abs{w}}} = \frac{y_i(w^Tx^i)}{\abs{\abs{w}}} \ge \gamma$
+		\newline Which as a result makes the mistake bound $\frac{R^2}{\gamma^2}$
+	\end{enumerate}
+	
+	\item~
+	\newline $R=\sqrt{n}$
+	\newline $u = (-\frac{1}{\sqrt{2k}}, ... , \frac{1}{\sqrt{2k}}, ..., 0)$
+	\newline postive samples: $y_i(u^Tx^i) \ge -\frac{1}{\sqrt{2k}}$
+	\newline negative samples: $y_i(u^Tx^i) \ge \sqrt{2k}$
+	\newline If $\gamma = \frac{1}{\sqrt{2k}}$ is chosen then it is guarenteed that for any $x^i, y_i(u^Tx^i) \ge \gamma$ 
+	\newline Therefore the upper bound for the number of mistakes is, $\frac{R^2}{\gamma^2}=\frac{\sqrt{n}^2}{\frac{1}{\sqrt{2k}}^2}=2kn$
+
+	\item~
+	\begin{enumerate}
+		\item~
+		\newline VC dimension of $\Hcal$ = $VC(\Hcal) \le 10$
+		\item~
+		\newline There are $2^m$ label distributions for a set of $m$ data points. Each of which correspond to an output of $h \in \Hcal$. If $2^m > \abs{\Hcal}$, then there are at most $\abs{\Hcal}$ outputs. Because the number of possible partitions is $2^m$ is greater than the number of functions in $\Hcal$, there is no way to shatter the data points if $m > log_2(\abs{\Hcal})$. Therefore, generally, $VC(\Hcal) \le log_2(\abs{\Hcal}).$
+	\end{enumerate}
+	\item~
+	\newline For this to be the case there needs to be at least one splitting that cannot be shattered by a line, for any arrangement of 4 points. The arrangment of the 4 points can either be where one point is located in the convex closure of the 3 other points, or all 4 points are corner points of the convex closure. The first splitting cannot be shattered by a line, becasue any line that classifies the points with one label, will misclassify the points with a different label. The second splitting cannot be shattered for a similar reason. Therefore linear classifiers cannot shatter 4 points. 
+	
+	\item~[\textbf{Bonus}]~[10 points] Consider our infinite hypothesis space $\Hcal$ are all rectangles in a plain. Each rectangle corresponds to a classifier --- all the points inside the rectangle are classified as positive, and otherwise classified as negative. What is $\mathrm{VC}(\Hcal)$? 
+
+
+\end{enumerate}
+
+\section{Practice [60 points ]}
+\begin{enumerate}
+	\item~
+	\newline https://github.com/BritGaul/CS5350
+
+\item 
+\begin{enumerate}
+	\item~
+	\newline T =  1, w = (-35.523314, -18.60129 , -23.305885,  -8.57917 ), b = 23.0, error = 0.024
+	\newline T =  2, w = (-37.4281297, -25.4913978, -29.340175 , -15.347344 ), b = 29.0, error = 0.028
+	\newline T =  3, w = (-35.263374 , -28.07227  , -33.012615 , -11.4340566), b = 33.0, error = 0.034
+	\newline T =  4, w = (-45.428818 , -37.91767  , -26.868495 , -12.4211916), b = 37.0, error = 0.038
+	\newline T =  5, w = (-56.479182, -29.08942 , -35.15271 , -15.393275), b = 40.0, error = 0.028
+	\newline T =  6, w = (-51.0585655, -32.22879  , -42.7972676,  -9.064403 ), b = 43.0, error = 0.038
+	\newline T =  7, w = (-46.83874 , -33.768615, -38.759985,  -3.39268 ), b = 44.0, error = 0.02
+	\newline T =  8, w = (-57.367873, -34.5365  , -37.8838  , -16.709465), b = 53.0, error = 0.018
+	\newline T =  9, w = (-60.72953 , -39.21511 , -40.191914, -11.150653), b = 57.0, error = 0.014
+	\newline T = 10, w = (-59.49004 , -34.84013 , -40.92277 , -13.150159), b = 60.0, error = 0.01
+ 
+	\item~
+	\newline Becasue there are so many weight vectors being used the output is very long. For this reason the output is located in the weights-counts-errors-partb.txt file.
+
+	\item~
+	\newline T = 1, w = (-1147.65044   -672.19275   -432.12782   -245.189073), b = 404.0, error = 0.074
+	\newline T = 2, w = (-2434.9438585 -1496.23658   -1213.365613   -640.603101), b = 1412.0, error = 0.034
+	\newline T = 3, w = (-3259.955521 -2367.11727  -2044.45811  -1005.62992), b = 2152.0, error = 0.022
+	\newline T = 4, w = (-4401.110835 -2735.615095 -2428.082668  -939.644328), b = 2690.0, error = 0.026
+	\newline T = 5, w = (-5339.843497 -3552.23921  -3210.62105  -1264.499558), b = 3751.0, error = 0.018
+	\newline T = 6, w = (-5872.8532305 -4064.77446   -3762.32626   -1406.224791), b = 4348.0, error = 0.018
+	\newline T = 7, w = (-6680.49729  -4087.99826  -4029.607708 -1189.622225), b = 5260.0, error = 0.018
+	\newline T = 8, w = (-8373.824228  -5300.13512   -5191.961385  -1598.8459572), b = 5931.0, error = 0.018
+	\newline T = 9, w = (-8000.8376   -5153.39226  -5149.81775  -1422.730017), b = 6528.0, error = 0.014
+	\newline T = 10, w = (-10228.003859   -6551.34039    -6132.2837484  -1848.4629562), b = 8523.0, error = 0.018
+
+ 
+	\item~
+	\newline Table for percentage errors:
+
+	\begin{table}[h]
+	\centering
+	\begin{tabular}{ccccccccccc|c}
+		T & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10\\ 
+		\hline\hline
+		standard & 1.2 & 2.6 & 1.2 & 1.0 & 1.4 & 1.8 & 1.4 & 1.2 & 1.8 & 1.4 \\ \hline
+		voted & 3.6 & 2.2 & 1.6 & 1.6 & 1.4 & 1.4 & 1.4 & 1.4 & 1.4 & 1.4 \\ \hline
+		average & 6.8 & 2.8 & 1.8 & 2.0 & 1.6 & 1.8 & 1.8 & 1.6 & 1.8 & 1.4 \\ \hline
+	\end{tabular}
+\end{table}
+
+ From the table it can be seen that as the number of epochs increases, the error for each method generally decreases. It can also be seen that the standard perceprton has the smallest test error, followed by the voted perceptron, and then the average perceptron generally has the highest test error. 
+
+\end{enumerate}
+
+
+\end{enumerate}
+
+\end{document}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
