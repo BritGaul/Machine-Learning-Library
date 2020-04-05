@@ -1,0 +1,259 @@
+\documentclass[12pt, fullpage,letterpaper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{url}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{xspace}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+
+\newcommand{\semester}{Spring 2020}
+\newcommand{\assignmentId}{4}
+\newcommand{\releaseDate}{19 Mar, 2020}
+\newcommand{\dueDate}{11:59pm, 4 Apr, 2020}
+
+\newcommand{\bx}{{\bf x}}
+\newcommand{\bw}{{\bf w}}
+
+\title{CS 5350/6350: Machine Learining \semester}
+\author{Homework \assignmentId}
+\date{Handed out: \releaseDate\\
+	Due: \dueDate}
+
+
+\title{CS 5350/6350: Machine Learning \semester}
+\author{Homework \assignmentId}
+\date{Handed out: \releaseDate\\
+  Due date: \dueDate}
+\author{Homework \assignmentId \\* Britton Gaul \\* u0915408}
+
+\begin{document}
+\maketitle
+
+\input{emacscomm}
+\newcommand{\Hcal}{\mathcal{H}} 
+
+\section{Paper Problems [40 points + 10 bonus]}
+\begin{enumerate}
+	\item~
+		
+	\begin{enumerate}
+		\item~ 
+		\newline If $x_i$ breaks into the margin and is on then correct the side then $0<\xi_i<1$
+		\item~
+		\newline If $x_i$ is correctly classified then $\xi_i=0$. If $x_i$ is missclassified then $\xi_i>1$. However it is still possible for it to stay on the outside of the margin, it would just be on the wrong side.
+		\item~
+		\newline This term maximizes the margin and factors in how many points will break into the margin. This is to make sure not too many points are breaking into the margin when maximizing. If it is removed then a lot more points will be allowed to break into the margin, which can lead to missclassification. 
+	\end{enumerate}
+	
+	
+	\item~
+	\newline The Langrangian form of the primal is:
+	\newline $min:w,b,\{\xi_i\}$ $max:\{\alpha_i\ge0,\beta_i\ge0\}$  
+	\newline $L=\frac{1}{2}w^Tw+C\sum_i\xi_i+\sum_i \beta_i(-\xi_i)+\sum_i\alpha_i(1-\xi_i-y_i(w^Tx_i+b))$
+	\newline The Langrangian form of the dual is:
+	\newline $min:w,b,\{\xi_i\}$ $max:\{\alpha_i\ge0,\beta_i\ge0\}$  
+	\newline $L=\frac{1}{2}w^Tw+C\sum_i\xi_i+\sum_i \beta_i(-\xi_i)+\sum_i\alpha_i(1-\xi_i-y_i(w^Tx_i+b))$
+	\newline 
+	\newline Because the function is differentiable the partial derivative can be set to equal 0 in order to get the minimum value.
+	\newline
+	\newline $\frac{\partial L}{\partial w}=w-\frac{\partial (\sum_i \alpha_i y_iw^Tx_i)}{\partial w}=0$
+	\newline which gives, $w=\sum_i \alpha_i y_ix_i$
+	\newline 
+	\newline $\frac{\partial L}{\partial b}=-\sum_i\alpha_iy_i=0$
+	\newline which gives, $\sum_i\alpha_iy_i=0$
+	\newline 
+	\newline $\frac{\partial L}{\partial \xi_i}=C-\alpha_i-\beta_i=0$
+	\newline which gives, $\alpha_i+\beta_i=C,\forall i$
+	\newline
+	\newline Then by substituting in $w$ and the two constraints into the Lagrangian form, the new objective function can be found
+	\newline
+	\newline $L'=\frac{1}{2}(\sum_i\alpha_iy_ix_i)^T(\sum_i\alpha_iy_ix_i)-(\sum_i\alpha_iy_i)(\sum_i\alpha_iy_ix_i)^T(x_i)+\sum_i\alpha_i$
+	\newline $L'=-\frac{1}{2}(\sum_i\alpha_iy_ix_i)^T(\sum_i\alpha_iy_ix_i)+\sum_i\alpha_i$
+	\newline $L'=-\frac{1}{2}\sum_i\sum_j\alpha_i\alpha_jy_iy_jx_i^Tx_j+\sum_i\alpha_i$
+	\newline
+	\newline Then the standard dual form is:
+	\newline $max:\{\alpha_i\ge0,\beta_i\ge0\}$ $L'=-\frac{1}{2}\sum_i\sum_j\alpha_i\alpha_jy_iy_jx_i^Tx_j+\sum_i\alpha_i$
+	\newline with $\sum_i\alpha_iy_i=0, \forall i$ and $\alpha_i+\beta_i=C, \forall i$
+	\newline which is equivalent to:
+	\newline $min L''=\frac{1}{2}\sum_i\sum_j\alpha_i\alpha_jy_iy_jx_i^Tx_j-\sum_i\alpha_i$
+	\newline with $\sum_i\alpha_iy_i=0, \forall i \in N$ and $0\le\alpha_i\le C, \forall i \in N$
+	
+	
+	
+	
+	\item~
+	\begin{enumerate}
+		\item~
+		\newline The parameter $\alpha_i=0$ indicates the sample at $x_i$ remains outside the margin.
+		\item~
+		\newline $\beta_i\xi_i=0, \forall i \in N$
+		\newline $\alpha_i(y_i(w^Tx_i+b)-1+\xi_i)=0, \forall i \in N$
+		\newline $\alpha_i+\beta_i=0, \forall i \in N$
+		\newline 
+		\newline Using the equations above it can be seen that if $\alpha_i>0, \xi_i=0$, then $x_i$ remains on the margin. Another way to check this is to look at the condition $\alpha_i>0$ and $\beta_i>0$ and if $\xi_i>0$. If both of these conditions are true then it also means the support vectors are located within the margin. 
+	\end{enumerate}
+	
+	
+	\item~
+	\newline The prediction for linear SVM is calculated normall with the equation $sgn(\sum_i\alpha_iy_ix_i^Tx)$ for the sample $x$. The kernel could be used to replace the dot product makeing the equation with the kernel, $sgn(\sum_i\alpha_iy_iK(x_i,x))$. Using the kernel also changes the dual form related to it to 
+	 $min \{\alpha_i \in[0, C]\}, \sum_i\alpha_iy_i=0:$   $\frac{1}{2}\sum_i\sum_j\alpha_i\alpha_jy_iy_jK(x_i, x_j)-\sum_i\alpha_i$.
+
+		
+	%calculate the subgradient
+	\item~
+	\newline $N=3$ so $C=\frac{1}{3}$
+	\newline For the first step $(x_1,y_1)$:
+	\newline $\nabla J = [w_0,0]-3Cy_1x_1$
+	\newline $\nabla J = [0,0,0,0]^T-3C[0.5,-1,0.3,1]^T$
+	\newline $\nabla J = [-0.5,1,-0.3,-1]^T$
+	\newline $w^1=w^0-0.01[-0.5,1,-0.3,-1]^T$
+	\newline $w^1=[0.005,-0.01,0.003,0.01]^T$
+	\newline 
+	\newline For the second step $(x_2, y_2)$:
+	\newline $\nabla J=[0.005,-0.01,0.003,0]-CNy_2x_2$
+	\newline $\nabla J=[-0.995,-2.01,-1.997,1]^T$
+	\newline $w^2=w^1-0.005[-0.995,-2.01,-1.997,1]^T$
+	\newline $w^2=[-0.990,-1.9999,-1.9870,0.9950]^T$
+	\newline
+	\newline For the third step $(x_3, y_3)$:
+	\newline $\nabla J=[w^2T,0]^T$
+	\newline $\nabla J =[-0.990,-1.9999,-1.9870,0]^T$
+	\newline $w^3=w^2-0.0025[-0.990,-1.9999,-1.9870,0]^T$
+	\newline $w^3=[-0.9875,-1.9949,-1.9820,0.9950]^T$
+	
+\end{enumerate}
+
+\section{Practice [60 points + 10 bonus ]}
+\begin{enumerate}
+	\item~ 
+	\newline GitHub link: https://github.com/BritGaul/CS5350  
+
+%kernel perceptron, kernel svms
+	\item~
+	\begin{enumerate}
+		\item~
+		\newline The chosen values are: $\gamma_0=2.3$ and $d=1$
+		\newline Training and Testing Error for each C Data:
+		\newline
+		\begin{table}[h]
+	\centering
+	\begin{tabular}{c|c|c|c|c}
+		C & Training Error & Testing Error & Weight\\ 
+		\hline\hline
+		$\frac{100}{873}$ & 0.039 & 0.048 & [-1.2668, -0.6846, -0.7392, -0.2697, 0.0] \\ \hline
+		$\frac{500}{873}$ & 0.044 & 0.052 & [-1.7982, -0.9413, -1.0412, -0.4045, 0.0] \\ \hline
+		$\frac{700}{873}$ & 0.038 & 0.048 & [-1.8919, -0.9910, -1.1521, -0.4060, 0.0] \\ \hline
+	\end{tabular}
+\end{table}
+		\item~
+		\newline The chosen values are: $\gamma_0=2.3$ and $T=100$
+		\newline Training and Testing Error for each C Data:
+		\newline
+		\begin{table}[h]
+	\centering
+	\begin{tabular}{c|c|c|c|c}
+		C & Training Error & Testing Error & Weight\\ 
+		\hline\hline
+		$\frac{100}{873}$ & 0.039 & 0.046 & [-1.3206, -0.7079, -0.7585, -0.2930, 0.0] \\ \hline
+		$\frac{500}{873}$ & 0.039 & 0.046 & [-1.8717, -1.1230, -1.2014, -0.5189, 0.0132] \\ \hline
+		$\frac{700}{873}$ & 0.084 & 0.096 & [-2.0623, -1.0124, -1.4387, -0.5426, 0.0] \\ \hline
+	\end{tabular}
+\end{table}
+		\newline 
+		\item~
+		\newline For the first rate schedule from part a, both the training errors and testing errors remained some what simiar for each of the values of C. For the second rate schedule from part b, the training and testing errors were alos similar. However, for the last C value tested they both increased dramatically. 
+			   The weights for both scheduled rates seemed to increase as the C value increased, but the weights for the schedule rate in part b were slightly larger then the ones in part a. 
+	\end{enumerate}
+
+
+\item~ 
+
+\begin{enumerate}
+	\item ~
+	\newline Training and Testing Error for each C Data:
+	\newline
+		\begin{table}[h]
+	\centering
+	\begin{tabular}{c|c|c|c|c}
+		C & Training Error & Testing Error & Weight\\ 
+		\hline\hline
+		$\frac{100}{873}$ & 0.071 & 0.078 & [-9.4292e-01, -6.5149e-01, -7.3372e-01, -4.1021e-02, 2.3959e-10] \\ \hline
+		$\frac{500}{873}$ & 0.056 & 0.066 & [-1.5639e+00, -1.0140e+00, -1.1806e+00, -1.5651e-01, 4.4810e-09] \\ \hline
+		$\frac{700}{873}$ & 0.056 & 0.062 & [-2.0425e+00, -1.2806e+00, -1.5135e+00, -2.4902e-01, -3.3224e-09] \\ \hline
+	\end{tabular}
+\end{table}
+	\newline The testing and training errors from the dual svm are higher then compared to the primal errors in question2. The weights are pretty similar although they are a bit higher in the dual svm then the primal. Also the b values are much higher in the dual then the primal. This is most likely because the dual svm is less accurate then the primal. 
+	\item~
+	\newline Training and Testing Error for each C Data:
+	\newline
+		\begin{table}[h]
+	\centering
+	\begin{tabular}{c|c|c|c|c}
+		$\gamma$ & C & Training Error & Testing Error \\ 
+		\hline\hline
+		0.1 & $\frac{100}{873}$ & 0.0 & 0.002 \\ \hline
+		0.5 & $\frac{100}{873}$ & 0.0 & 0.002  \\ \hline
+		1 & $\frac{100}{873}$ & 0.0 & 0.002  \\ \hline
+		5 & $\frac{100}{873}$ & 0.008 & 0.006  \\ \hline
+		100 & $\frac{100}{873}$ & 0.315 & 0.28  \\ \hline
+
+		0.1 & $\frac{500}{873}$ & 0.0 & 0.002 \\ \hline
+		0.5 & $\frac{500}{873}$ & 0.0 & 0.002  \\ \hline
+		1 & $\frac{500}{873}$ & 0.0 & 0.002  \\ \hline
+		5 & $\frac{500}{873}$ & 0.003 & 0.006  \\ \hline
+		100 & $\frac{500}{873}$ & 0.298 & 0.266  \\ \hline
+
+		0.1 & $\frac{700}{873}$ & 0.0 & 0.002 \\ \hline
+		0.5 & $\frac{700}{873}$ & 0.0 & 0.002  \\ \hline
+		1 & $\frac{700}{873}$ & 0.0 & 0.002  \\ \hline
+		5 & $\frac{700}{873}$ & 0.003 & 0.006  \\ \hline
+		100 & $\frac{700}{873}$ & 0.298 & 0.266  \\ \hline
+	\end{tabular}
+\end{table}
+	\newline The best combination is having gamma as 0.1. This was true for all the different values of C. This means that the data becomes linearly seperable with these values in place. Compared with the linear SVM, this version results in much lower training and teating errors. 
+	
+	\item~
+	\newline Number of Support Vectors:
+	\newline
+		\begin{table}[h]
+	\centering
+	\begin{tabular}{c|c|c|c|c}
+		$\gamma$ & $\frac{100}{873}$ & $\frac{500}{873}$ & $\frac{700}{873}$\\ 
+		\hline\hline
+		0.1 & 869 & 871 & 872 \\ \hline
+		0.5 & 858 & 751 & 790  \\ \hline
+		1 & 821 & 613 & 781  \\ \hline
+		5 & 722 & 527 & 611  \\ \hline
+		100 & 459 & 444 & 450  \\ \hline
+	\end{tabular}
+\end{table}
+\newline Number of overlapping Support Vectors when $C=\frac{500}{873}$:
+	\newline
+		\begin{table}[h]
+	\centering
+	\begin{tabular}{c|c|c|c|c}
+		$\gamma$ & Number of Overlaps \\ 
+		\hline\hline
+		0.1 & 750 \\ \hline
+		0.5 & 592  \\ \hline
+		1 & 487   \\ \hline
+		5 & 228  \\ \hline
+		100 & 0 \\ \hline
+	\end{tabular}
+\end{table}
+\newline The number of support vectors decreases as gamma increases for all the different values of C. Also for each gamma values as C increases the number of support vectors for each C value increases. 	
+	
+\end{enumerate} 
+
+\end{enumerate}
+
+
+
+\end{document}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
