@@ -1,0 +1,240 @@
+\documentclass[12pt, fullpage,letterpaper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{url}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{xspace}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+
+\newcommand{\semester}{Spring 2020}
+\newcommand{\assignmentId}{5}
+\newcommand{\releaseDate}{7 Apr, 2020}
+\newcommand{\dueDate}{11:59pm, 24 Apr, 2020}
+
+\newcommand{\bx}{{\bf x}}
+\newcommand{\bw}{{\bf w}}
+
+\title{CS 5350/6350: Machine Learining \semester}
+\author{Homework \assignmentId}
+\date{Handed out: \releaseDate\\
+	Due: \dueDate}
+
+\title{CS 5350/6350: Machine Learning \semester}
+\author{Homework \assignmentId}
+\date{Handed out: \releaseDate\\
+  Due date: \dueDate}
+\author{Homework \assignmentId \\* Britton Gaul \\* u0915408}
+
+\begin{document}
+\maketitle
+
+\input{emacscomm}
+\newcommand{\Hcal}{\mathcal{H}} 
+
+
+\section{Paper Problems [40 points]}
+\begin{enumerate}
+	\item~
+	\newline  Derivative of sigmoid function:
+	\newline $\sigma(s)=\frac{1}{1+e^{-s}} = \frac{\partial\sigma}{\partial s}=\sigma(s)(1-\sigma(s))$
+	\newline
+	\newline $\frac{\partial z}{\partial x}=\frac{\partial z}{\partial y_1}\cdot\frac{\partial y_1}{\partial x}+\frac{\partial z}{\partial y_2}\cdot\frac{\partial y_2}{\partial x}+\frac{\partial z}{\partial y_3}\cdot\frac{\partial y_3}{\partial x}$
+	\newline $=3\sigma(y_1)(1-\sigma(y_1))-e^{-x}\sigma(y_2)(1-\sigma(y_2))+cos(x)\sigma(y_3)(1-\sigma(y_3))$
+	\newline $=3\sigma(3x)(1-\sigma(3x))-e^{-x}\sigma(e^{-x})(1-\sigma(e^{-x}))+cos(x)\sigma(sin(x))(1-\sigma(sin(x)))$
+	\newline so, 
+	\newline $\frac{\partial z}{\partial x}_{when, x=0} = 3.3034$
+	
+	%forward pass
+	\item~
+	\newline Layer 1:
+	\newline $z^1_1=\sigma(\sum_{i=0}^{2}w^1_{i1}x_i)=\sigma(-1-2-3)=0.0025$
+	\newline $z^1_2=\sigma(\sum_{i=0}^{2}w^1_{i2}x_i)=\sigma(1+2+3)=0.9975$
+	\newline Layer 2:
+	\newline $z^2_1=\sigma(\sum_{i=0}^{2}w^2_{i1}z^1_i)=\sigma(-1-2\cdot 0.0025-3\cdot0.0075)=0.0180$
+	\newline $z^2_2=\sigma(\sum_{i=0}^{2}w^2_{i2}z^1_i)=\sigma(1+2\cdot 0.0025+3\cdot0.0075)=0.9820$
+	\newline Layer 3:
+	\newline $y=\sum_{i=0}^{2}w^3_{i1}z^2_i=-1+2\cdot0.018-1.5\cdot0.982=-2.4370$
+	
+	%back-propgation
+	
+	%logistic-regression
+	\item~
+	\newline Layer 3 weights:
+	\newline  $\frac{\partial L}{\partial w^3_{01}}=\frac{\partial L}{\partial y}\cdot\frac{\partial y}{\partial w^3_{01}}=(y-y*)$
+	\newline  $z^2_0=-2.4370-1=-3.4370$ this value gets cached
+	\newline  $\frac{\partial L}{\partial w^3_{11}}=\frac{\partial L}{\partial y}\cdot\frac{\partial y}{\partial w^3_{11}}=-3.4370z^2_1=-3.4370\cdot0.018=-0.0619$
+	\newline  $\frac{\partial L}{\partial w^3_{21}}=\frac{\partial L}{\partial y}\cdot\frac{\partial y}{\partial w^3_{21}}=-3.4370z^2_2=-3.4370\cdot0.982=-3.3751$
+	\newline Layer 2 weights:
+	\newline $\frac{\partial L}{\partial w^2_{01}}=\frac{\partial L}{\partial y}\cdot\frac{\partial y}{\partial z^2_1}\cdot\frac{\partial z^2_1}{\partial w^2_{01}}=\frac{\partial L}{\partial y}\cdot\frac{\partial y}{\partial z^2_1}\cdot\frac{\partial\sigma(s)}{\partial s}\cdot\frac{\partial s}{\partial w^2_{01}}=(y-y*)w^3_{11}\sigma(s)(1-\sigma(s))z^1_0$ this value is cached
+	\newline $=(y-y*)w^3_{11}z^2_1(1-z^2_1)z^1_0=-3.4370\cdot2\cdot0.018\cdot(1-0.018)=-0.1215$ where this value is also cached 
+	\newline $\frac{\partial L}{\partial w^2_{11}}=\frac{\partial L}{\partial y}\cdot\frac{\partial y}{\partial z^2_1}\cdot\frac{\partial z^2_1}{\partial w^2_{11}}=\frac{\partial L}{\partial y}\cdot\frac{\partial y}{\partial z^2_1}\cdot\frac{\partial\sigma(s)}{\partial s}\cdot\frac{\partial s}{\partial w^2_{11}}=\frac{\partial L}{\partial y}\cdot\frac{\partial y}{\partial z^2_1}		  			\cdot\frac{\partial\sigma(s)}{\partial s}z^1_1$
+	\newline $=-0.1215\cdot0.0025=-3.0375e-04$
+	\newline $\frac{\partial L}{\partial w^2_{21}}=\frac{\partial L}{\partial y}\cdot\frac{\partial y}{\partial z^2_1}\cdot\frac{\partial z^2_1}{\partial w^2_{21}}=\frac{\partial L}{\partial y}\cdot\frac{\partial y}{\partial z^2_1}\cdot\frac{\partial\sigma(s)}{\partial s}\cdot\frac{\partial s}{\partial w^2_{21}}=\frac{\partial L}{\partial y}\cdot\frac{\partial y}{\partial z^2_1}		  			\cdot\frac{\partial\sigma(s)}{\partial s}z^1_2$
+	\newline $=-0.1215\cdot0.0075=-0.1212$
+	\newline $\frac{\partial L}{\partial w^2_{02}}=\frac{\partial L}{\partial y}\cdot\frac{\partial y}{\partial z^2_2}\cdot\frac{\partial z^2_2}{\partial w^2_{02}}=\frac{\partial L}{\partial y}\cdot\frac{\partial y}{\partial z^2_2}\cdot\frac{\partial\sigma(s)}{\partial s}\cdot\frac{\partial s}{\partial w^2_{02}}$
+	\newline $=(y-y*)w^3_{21}z^2_2(1-z^2_2)z^1_0=-3.4370\cdot-1.5\cdot0.982\cdot(1-0.982)\cdot1=0.0911$ this value is cached
+	\newline  $\frac{\partial L}{\partial w^2_{12}}=(y-y*)w^3_{21}z^2_2(1-z^2_2)z^1_1=0.0911\cdot0.0025=2.2775e-04$ this value is cached
+	\newline  $\frac{\partial L}{\partial w^2_{22}}=(y-y*)w^3_{21}z^2_2(1-z^2_2)z^1_2=0.0911\cdot0.9975=0.0909$ this value is cached
+	\newline Layer 1 weights:
+	\newline $\frac{\partial L}{\partial w^1_{01}}=\frac{\partial L}{\partial y}\cdot(\frac{\partial y}{\partial z^2_1}\frac{\partial z^2_1}{\partial z^1_1}+\frac{\partial y}{\partial z^2_2}\frac{\partial z^2_2}{\partial z^1_1})\cdot\frac{\partial z^1_1}{\partial w^1_{01}}$
+	\newline $=(\frac{\partial L}{\partial z^2_1}z^2_1(1-z^2_1)w^2_{11}+\frac{\partial L}{\partial z^2_2}z^2_2(1-z^2_2)w^2_{12})z^1_1(1-z^1_1)x_0$ this value is cached
+	\newline $=((y-y*)w^3_{11}z^2_1(1-z^2_1)w^2_{11}+(y-y*)w^3_{21}z^2_2(1-z^2_2)w^2_{12})z^1_1(1-z^1_1)x_0$ this value is cached
+	\newline $=(-0.1215\cdot-2+0.0911\cdot2)\cdot0.0025\cdot(1-0.0025)\cdot x_0$ this value is cached
+	\newline $=0.0011$
+	\newline $\frac{\partial L}{\partial w^1_{11}}=0.0011x_1=0.0011$
+	\newline $\frac{\partial L}{\partial w^1_{21}}=0.0011x_2=0.0011$
+	\newline $\frac{\partial L}{\partial w^1_{02}}=\frac{\partial L}{\partial y}\cdot(\frac{\partial y}{\partial z^2_1}\frac{\partial z^2_1}{\partial z^1_1}+\frac{\partial y}{\partial z^2_2}\frac{\partial z^2_2}{\partial z^1_1})\cdot\frac{\partial z^1_1}{\partial w^1_{01}}$
+	\newline $=(\frac{\partial L}{\partial z^2_1}z^2_1(1-z^2_1)w^2_{11}+\frac{\partial L}{\partial z^2_2}z^2_2(1-z^2_2)w^2_{12})z^1_1(1-z^1_1)x_0$ this value is cached
+	\newline $=((y-y*)w^3_{11}z^2_1(1-z^2_1)w^2_{11}+(y-y*)w^3_{21}z^2_2(1-z^2_2)w^2_{12})z^1_1(1-z^1_1)x_0$ this value is cached
+	\newline $=(-0.1215\cdot-3+0.0911\cdot3)\cdot0.9975\cdot(1-0.9975)\cdot x_0$ this value is cached
+	\newline $=0.0016$
+	\newline $\frac{\partial L}{\partial w^1_{12}}=0.0016x_1=0.0016$
+	\newline $\frac{\partial L}{\partial w^1_{22}}=0.0016x_2=0.0016$
+	
+	%calculate the subgradient
+	\item~
+	\begin{itemize}
+		\item~
+		\newline MAP objective function: $max_wP(S|w)p(w)$ where $S(m=3, d=4)$ and $x_0=1$
+		\newline weights:
+		\newline $log P(S|w)= log(\prod^d_{i=1}p(y_i|x_i, w))=log(\prod^m_{i=1}\frac{1}{1+e^{-y_iw^Tx_i}}) = -\sum^d_{i=1}log(1+e^{-y_iw^Tx_i})$
+		\newline
+		\newline $log p(w)=log(\prod^d_{i=1}p(w_i)) = log(\prod^d_{i=1}\frac{1}{2\sqrt{2\pi}}e^{-\frac{w^2_i}{2}})=-\sum^d_{i=1}\frac{w^2_i}{2}-d\cdot log(2\pi)=-\frac{1}{2}w^Tw+C$
+		\newline with the found weights the object function becomes:
+		\newline $min_w L(w)=\frac{1}{2}w^Tw+\sum^m_{i=1}log(1+e^{-y_iw^Tx_i})$
+		\newline Gradient of the objective function:
+		\newline $\nabla L(w)=w-\sum^m_{i=1}y_ix_i(1-\sigma(y_iw^Tx_i))$
+		\newline $\nabla L(w, x_i, y_i)=w-my_ix_i(1-\sigma(y_iw^Tx_i))$
+
+
+		\item~ 
+		\newline $y_1w^T_0x_1=0$
+		\newline $\nabla L(w_0)=w_0-3(1-\sigma(0))[1,0.5,-1,0.3]^T=[-1.5,-0.75,1.5,-0.45]^T$
+		\newline $w_1 = w_0-0.01\nabla L(w_0)=0.01\cdot[1.5,0.75,-1.5,0.45]^T$
+		\newline $y_2w^T_1x_2=-0.0285$
+		\newline $\nabla L(w_1)=w_1-3(1-\sigma(-0.0285))[1,-1,-2,-2]^T=[-1.5064,1.5289,3.0277,3.0472]^T$
+		\newline $w_2=w_1-0.005\nabla L(w_1) = 0.01\cdot[1.5,0.75,-1.5,0.45]^T-0.005\cdot[-1.5064,1.5289,3.0277,3.0472]^T=[0.0225,-0.0001,-0.0301,-0.107]^T$
+		\newline $y_3w^T_2x_3=0.0431$
+		\newline $\nabla L(w_2)=w_2-3(1-\sigma(0.0431))[1,1.5,0.2,-2.5]^T=[-1.4452,-2.2016,-0.3236,3.6585]^T$
+		\newline $w_3=w_2-0.0025\nabla L(w_2)$
+		\newline $=[0.0225,-0.0001,-0.0301,-0.0107]^T-0.0025\cdot[-1.4452,-2.2016,-0.3236,3.6585]^T=[0.0261,0.0054,-0.0293,-0.0198]^T$
+
+	\end{itemize}
+	
+\end{enumerate}
+
+\section{Practice [62 points + 50 bonus ]}
+\begin{enumerate}
+	\item~ 
+	\newline Github Link: https://github.com/BritGaul/CS5350
+
+%kernel perceptron, kernel svms
+	\item~
+	%Try the hyperparameter $C$ from $\{\frac{1}{873}, \frac{10}{873}, \frac{50}{873}, \frac{100}{873}, \frac{300}{873}, \frac{500}{873,} \frac{700}{873}\}$. Don't forget to convert the labels to be in $\{1, -1\}$.  
+	\begin{enumerate}
+		\item~
+		\newline Table of Variance and Errors:
+		\begin{table}[h]
+		\centering
+		\begin{tabular}{c|c|c}
+		Variance & Training Error & Testing Error\\ 
+		\hline\hline
+		0.01 & 0.0401 & 0.0540 \\ \hline
+		0.1 & 0.0115 & 0.0120 \\ \hline
+		0.5 & 0.0115 & 0.0100 \\ \hline
+		1 & 0.0115 & 0.0120 \\ \hline
+		3 & 0.0115 & 0.0120 \\ \hline
+		5 & 0.0161 & 0.0160 \\ \hline
+		10 & 0.0115 & 0.0200 \\ \hline
+		100 & 0.0298 & 0.0340 \\ \hline
+		\end{tabular}
+		\end{table}
+		\newline 
+		\newline
+		\newline 
+		\newline 
+		\newline
+		\newline 
+		\newline 
+		\newline
+		\newline
+		\newline
+
+		\item~
+		\newline Table of Variance and Errors:
+		\begin{table}[h]
+		\centering
+		\begin{tabular}{c|c|c}
+		Variance & Training Error & Testing Error\\ 
+		\hline\hline
+		0.01 & 0.0321 & 0.0400 \\ \hline
+		0.1 & 0.0183 & 0.032 \\ \hline
+		0.5 & 0.03444 & 0.0500 \\ \hline
+		1 & 0.0103 & 0.0140 \\ \hline
+		3 & 0.0264 & 0.0360 \\ \hline
+		5 & 0.0161 & 0.0280 \\ \hline
+		10 & 0.0344 & 0.0420 \\ \hline
+		100 & 0.0057 & 0.0120 \\ \hline
+		\end{tabular}
+		\end{table}
+		
+		\item~
+		\newline The ML estimation approach resulted in higher errors for the majority of the variances when compared to the MAP method. However, one exception was for the case of the variance being set to 100. With this variance the ML estimation method had smaller errors for both training and testing. 
+	\end{enumerate}
+
+
+\item~
+
+\begin{enumerate}
+	\item ~
+	Code is in the Neural Networks folder in the file named backpropagation.py on github
+	\item~
+	\newline Table of Width and Errors:
+		\begin{table}[h]
+		\centering
+		\begin{tabular}{c|c|c}
+		Width & Training Error & Testing Error\\ 
+		\hline\hline
+		5 & 0.4461 & 0.4420 \\ \hline
+		10 & 0.0046 & 0.0020 \\ \hline
+		25 & 0.0482 & 0.0760 \\ \hline
+		50 & 0.0069 & 0.0080 \\ \hline
+		100 & 0.0321 & 0.0320 \\ \hline
+		\end{tabular}
+		\end{table}
+	
+	\item~
+	\newline Table of Width and Errors:
+		\begin{table}[h]
+		\centering
+		\begin{tabular}{c|c|c}
+		Width & Training Error & Testing Error\\ 
+		\hline\hline
+		5 & 0.4461 & 0.4420 \\ \hline
+		10 & 0.4461 & 0.4420 \\ \hline
+		25 & 0.4461 & 0.4420 \\ \hline
+		50 & 0.4461 & 0.44200 \\ \hline
+		100 & 0.4461 & 0.4420 \\ \hline
+		\end{tabular}
+		\end{table}
+	\newline The training and testing errors for all widths remain the same. When the weights are set to zero the neural network does not seem to improve with a chnage in width. This could be because the weights are not updated properly when initialized to zero.
+	\item~
+	\newline The neural network and logistic regression seemed to generally perform better then the SVM. However for the neural network to perfrom better the weights need to be initialized properly, not to zero, and the width of the tree seemed to perform best when set to ten. 
+	
+	
+\end{enumerate} 
+
+	\item~
+	\newline It has been a fun class and I like how my machine learning library turned out. I have enjoyed this class and have learned a lot. 
+\end{enumerate}
+
+
+
+\end{document}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
