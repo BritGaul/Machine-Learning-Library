@@ -29,13 +29,17 @@ def polar_label(bank_list):
     for i in range(len(bank_list)):
         temp_list[i][-1] = 2*bank_list[i][-1]-1
     return temp_list      
-    
+
+
 Num_attr = len(bank_train[0])-1 
 train_bank = convert_to_float(bank_train)
 test_bank = convert_to_float(bank_test)      
 train_polar = polar_label(train_bank)
 test_polar = polar_label(test_bank)    
 
+print(train_bank)
+print("############################################################################################################")
+print(train_polar)
 
 def perceptron_single(bank_list,pi, w, b, rate):  
     for i in range(len(bank_list)):
@@ -68,6 +72,6 @@ def standard_perceptron(train_p, test_p, w , b, rate, T):
     return [ww, bb, err]  
 
 
-for t in range (1, T+1):
-    print("T = ", t)
-    print(standard_perceptron(train_polar, test_polar, np.zeros(Num_attr), 0 ,rate,t))
+# for t in range (1, T+1):
+#     print("T = ", t)
+#     print(standard_perceptron(train_polar, test_polar, np.zeros(Num_attr), 0 ,rate,t))
