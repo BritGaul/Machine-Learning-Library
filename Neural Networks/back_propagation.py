@@ -15,14 +15,14 @@ with open(BANK_TESTING,mode='r') as f:
         bank_test.append(terms)
 
 
-def str_2_flo(data):
+def convert_to_float(data):
     for row in data:
         for j in range(len(data[0])):
             row[j] = float(row[j])
     return data
 
 
-def add_cons_feature(data):
+def constant_feature(data):
     label = [row[-1] for row in data]
     temp = data
     for i in range(len(data)):
@@ -39,10 +39,10 @@ def polar_label(data):
     return temp
 
 
-train_bank = str_2_flo(bank_train)  # convert to float  types data
-test_bank = str_2_flo(bank_test)
-train_data = add_cons_feature(polar_label(train_bank))
-test_data = add_cons_feature(polar_label(test_bank))
+train_bank = convert_to_float(bank_train)  # convert to float  types data
+test_bank = convert_to_float(bank_test)
+train_data = constant_feature(polar_label(train_bank))
+test_data = constant_feature(polar_label(test_bank))
 train_len = len(train_data)  # NO. of samples
 test_len = len(test_data)
 dim_s = len(train_data[0]) - 1  # sample dimension = 5 (including constant feature)
