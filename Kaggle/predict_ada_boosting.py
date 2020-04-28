@@ -54,7 +54,7 @@ with open(TESTING_DATA, mode='r') as f:
     test_bank = []
     next(f)
     for line in f:
-        terms = line.strip().split(',') 
+        terms = line.strip().split(',')
         terms.pop(0)
         test_bank.append(terms)
 
@@ -85,7 +85,7 @@ bank_attributes = {
              'age': ['yes', 'no'],
              'workclass': ['Private', 'Self-emp-not-inc', 'Self-emp-inc', 'Federal-gov', 'Local-gov', 'State-gov', 'Without-pay', 'Never-worked', '?'],
              'fnwlwgt': ['yes', 'no'],
-             'education': ['Bachelors', 'Some-college', '11th', 'HS-grad', 'Prof-school', 'Assoc-acdm', 'Assoc-voc', '9th', '7th-8th', '12th', 
+             'education': ['Bachelors', 'Some-college', '11th', 'HS-grad', 'Prof-school', 'Assoc-acdm', 'Assoc-voc', '9th', '7th-8th', '12th',
                             'Masters', '1st-4th', '10th', 'Doctorate', '5th-6th', 'Preschool', '?'],
              'education-num': ['yes', 'no'],
              'marital-status': ['Married-civ-spouse', 'Divorced', 'Never-married', 'Separated', 'Widowed', 'Married-spouse-absent', 'Married-AF-spouse', '?'],
@@ -103,7 +103,7 @@ bank_attributes = {
                                 'Scotland', 'Thailand', 'Yugoslavia', 'El-Salvador', 'Trinadad&Tobago', 'Peru', 'Hong', 'Holand-Netherlands', '?'],
             }
 
-def bank_pos(attribute):
+def pos(attribute):
     pos = 0
     if attribute == 'age':
         pos = 0
@@ -135,18 +135,19 @@ def bank_pos(attribute):
         pos = 13
     return pos
 
-    # create obj with multipe empty lists
-def create_list_bank(attribute):
+
+
+
+def create_list(attr):
     obj = {}
-    for attr_val in bank_attributes[attribute]:
+    for attr_val in bank_attributes[attr]:
         obj[attr_val] = []
     return obj
 
 
-# create obj with multipe zero elements
-def build_empty_list(attribute):
+def build_empty_list(attr):
     obj = {}
-    for attr_val in attribute:
+    for attr_val in attr:
         obj[attr_val] = 0
     return obj
 
@@ -167,24 +168,27 @@ def gini_index(groups, classes):
 
 
 def information_gain(groups, classes):
-    n = float(sum([len(groups[attr_val]) for attr_val in groups]))
+    Q = 0.0
+    tp = 0.0
+    for attr_val in groups:
+        tp = sum([row[-1] for row in groups[attr_val]])
+        Q = Q + tp
     exp_ent = 0.0
-    for attribute_value in groups:
-        size = float(len(groups[attribute_value]))
+    for attr_val in groups:
+        size = float(len(groups[attr_val]))
         if size == 0:
             continue
-        score = 0.0
-        for value in classes:
-            p = [row[-1] for row in groups[attribute_value]].count(value) / size
+        score = 0
+        q = sum([row[-1] for row in groups[attr_val]])
+        for class_val in classes:
+            p = sum([row[-1] for row in groups[attr_val] if row[-2] == class_val]) / q
             if p == 0:
                 temp = 0
             else:
                 temp = p * math.log2(1 / p)
             score += temp
-        # weight the group score by its relative size
-        exp_ent += score * (size / n)
+        exp_ent += score * sum([row[-1] for row in groups[attr_val]]) / Q
     return exp_ent
-
 
 def majority_error(groups, classes):
     n = float(sum([len(groups[attr_val]) for attr_val in groups]))
@@ -202,37 +206,33 @@ def majority_error(groups, classes):
         majority_error += score * (size / n)
     return majority_error
 
-
-def data_split_bank(attributes, dataset):
-    branch_obj = create_list_bank(attributes)
+def data_split(attr, dataset):
+    branch_obj = create_list(attr)
     for row in dataset:
-        for attr_val in bank_attributes[attributes]:
-            if row[bank_pos(attributes)] == attr_val:
+        for attr_val in bank_attributes[attr]:
+            if row[pos(attr)] == attr_val:
                 branch_obj[attr_val].append(row)
-    return branch_obj  
+    return branch_obj
 
 
-def find_best_split(dataset, attribute):
+def find_best_split(dataset):
     if dataset == []:
         return
-    if attribute == "bank":
-        label_values = list(set(row[-1] for row in dataset))
-        metric_obj = build_empty_list(bank_attributes)
-        for attr in bank_attributes:
-            groups = data_split_bank(attr, dataset)
-            metric_obj[attr] = majority_error(groups, label_values)  # change metric here
-        best_attr = min(metric_obj, key=metric_obj.get)
-        best_groups = data_split_bank(best_attr, dataset)
-        return {'best_attr': best_attr, 'best_groups': best_groups}
+    label_values = list(set(row[-2] for row in dataset))
+    metric_obj = build_empty_list(bank_attributes)
+    for attr in bank_attributes:
+        groups = data_split(attr, dataset)
+        metric_obj[attr] = gini_index(groups, label_values)
+    best_attr = min(metric_obj, key=metric_obj.get)
+    best_groups = data_split(best_attr, dataset)
+    return {'best_attr': best_attr, 'best_groups': best_groups}
 
 
-# returns the majority label within 'group'
 def leaf_node_label(group):
-    majority_labels = [row[-1] for row in group]
+    majority_labels = [row[-2] for row in group]
     return max(set(majority_labels), key=majority_labels.count)
 
 
-# if there is only one non-empty branch, then return False
 def if_node_divisible(branch_obj):
     non_empty_indices = [key for key in branch_obj if not (not branch_obj[key])]
     if len(non_empty_indices) == 1:
@@ -241,91 +241,174 @@ def if_node_divisible(branch_obj):
         return True
 
 
-def child_node(node, max_depth, curr_depth, dataset):
-    if not if_node_divisible(node['best_groups']):
-        for key in node['best_groups']:
-            if node['best_groups'][key]:
-                node[key] = leaf_node_label(node['best_groups'][key])
-            else:
-                node[key] = leaf_node_label(sum(node['best_groups'].values(), []))
-        return
+def child_node(node, max_depth, curr_depth):
     if curr_depth >= max_depth:
         for key in node['best_groups']:
-            if node['best_groups'][key]:
+            if node['best_groups'][key] != []:
                 node[key] = leaf_node_label(node['best_groups'][key])
             else:
                 node[key] = leaf_node_label(sum(node['best_groups'].values(), []))
         return
     for key in node['best_groups']:
-        if dataset == "car":
-            if node['best_groups'][key]:
-                node[key] = find_best_split(node['best_groups'][key], dataset)
-                child_node(node[key], max_depth, curr_depth + 1, dataset)
-            else:
-                node[key] = leaf_node_label(sum(node['best_groups'].values(), []))
-        if dataset == "bank":
-            if node['best_groups'][key]:
-                node[key] = find_best_split(node['best_groups'][key], dataset)
-                child_node(node[key], max_depth, curr_depth + 1, dataset)
-            else:
-                node[key] = leaf_node_label(sum(node['best_groups'].values(), []))
+        if node['best_groups'][key] != []:
+            node[key] = find_best_split(node['best_groups'][key])
+            child_node(node[key], max_depth, curr_depth + 1)
+        else:
+            node[key] = leaf_node_label(sum(node['best_groups'].values(), []))
 
-            
 
-def tree_build_bank(train, max_depth):
-    root = find_best_split(train, "bank")
-    child_node(root, max_depth, 1, "bank")
+def tree_build(train_data, max_depth):
+    root = find_best_split(train_data)
+    child_node(root, max_depth, 1)
     return root
 
 
-# test if an instance belongs to a node recursively
-def label_predict_bank(node, inst):
-    if isinstance(node[inst[bank_pos(node['best_attr'])]], dict):
-        return label_predict_bank(node[inst[bank_pos(node['best_attr'])]], inst)
+def label_predict(node, inst):
+    if isinstance(node[inst[pos(node['best_attr'])]], dict):
+        return label_predict(node[inst[pos(node['best_attr'])]], inst)
     else:
-        return node[inst[bank_pos(node['best_attr'])]]  # leaf node
+        return node[inst[pos(node['best_attr'])]]
 
 
-def error(true_label, predicted):
+def sign_func(val):
+    if val > 0:
+        return 1.0
+    else:
+        return -1.0
+
+
+def label_return(dataset, tree):
+    true_label = []
+    pred_seq = []
+    for row in dataset:
+        true_label.append(row[-2])
+        pre = label_predict(tree, row)
+        pred_seq.append(pre)
+    return [true_label, pred_seq]
+
+
+def list_obj(n):
+    obj = {}
+    for i in range(n):
+        obj[i] = []
+    return obj
+
+
+def to_binary(llist):
+    bin_list = []
+    for i in range(len(llist)):
+        if llist[i] == 'yes':
+            bin_list.append(1.0)
+        else:
+            bin_list.append(-1.0)
+    return bin_list
+
+
+def weight_update(curr_wt, vote, bin_true, bin_pred):
+    next_wt = []
+    for i in range(len(bin_true)):
+        next_wt.append(curr_wt[i] * math.e ** (- vote * bin_true[i] * bin_pred[i]))
+    next_weight = [x / sum(next_wt) for x in next_wt]
+    return next_weight
+
+
+def weight_append(mylist, weights):
+    for i in range(len(mylist)):
+        mylist[i].append(weights[i])
+    return mylist
+
+
+def weight_update_data(data, weight):
+    for i in range(len(data)):
+        data[i][-1] = weight[i]
+    return data
+
+
+def fin_dec(indiv_pred, vote, data_len, _T):
+    fin_pred = []
+    for j in range(data_len):
+        score = sum([indiv_pred[i][0][j] * vote[i] for i in range(_T)])
+        fin_pred.append(sign_func(score))
+    return fin_pred
+
+
+def wt_error(true_label, predicted, weights):
     count = 0
     for i in range(len(true_label)):
         if true_label[i] != predicted[i]:
+            count += weights[i]
+    return count
+
+
+def _error(_true_lb, _pred_lb):
+    count = 0
+    size = len(_true_lb)
+    for i in range(size):
+        if _true_lb[i] != _pred_lb[i]:
             count += 1
-    return count / float(len(true_label)) * 100.0
+    return count / size
 
 
+delta = 1e-8
+
+
+def ada_boost(_T, _delta, train_data):
+    pred_result = list_obj(_T)
+    vote_say = []
+    weights = [row[-1] for row in train_data]
+    for i in range(_T):
+        tree = tree_build(train_data, 1)
+        print(tree['best_attr'])
+        [pp_true, qq_pred] = label_return(train_data, tree)
+        pred_result[i].append(to_binary(qq_pred))
+        err = wt_error(pp_true, qq_pred, weights)
+        print(err)
+        print(weights[0])
+        vote_say.append(0.5 * math.log((1 - err) / err))
+        weights = weight_update(weights, 0.5 * math.log((1 - err) / err), to_binary(pp_true), to_binary(qq_pred))
+        train_data = weight_update_data(train_data, weights)
+    return [pred_result, vote_say, weights]
+
+
+W_1 = np.ones(len(train_data)) / len(train_data)
+train_bank = weight_append(train_data, W_1)
+true_label_bin = to_binary([row[-2] for row in train_bank])
+
+
+def iteration_error(T_max):
+    ERR = []
+    for t in range(1, T_max):
+        [aa_pred, bb_vote, weights] = ada_boost(t, .001, train_bank)
+        fin_pred = fin_dec(aa_pred, bb_vote, len(train_bank), t)
+        ERR.append(_error(true_label_bin, fin_pred))
+    return ERR
+
+def calc_prediction_error_testing_bank(tree):
+    true_label = []
+    pred_seq = []
+    id = 0
+    with open('adaboost_output.csv', 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['ID'] + ['Prediction'])
+        for row in test_bank:
+            id += 1
+            true_label.append(row[-1])
+            pre = label_predict(tree, row)
+            pred_seq.append(pre)
+            writer.writerow([str(id)] + [str(pre)])
+    return iteration_error(10)
 
 def calc_prediction_error_training_bank(tree):
     true_label = []
     pred_seq = []
     for row in train_data:
         true_label.append(row[-1])
-        pre = label_predict_bank(tree, row)
+        pre = label_predict(tree, row)
         #print("prediction: ", pre)
         pred_seq.append(pre)
-    return error(true_label, pred_seq)
+    return iteration_error(10)
 
+tree = tree_build(train_data, 13)
 
-def calc_prediction_error_testing_bank(tree):
-    true_label = []
-    pred_seq = []
-    id = 0
-    with open('decisiontree_output.csv', 'w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(['ID'] + ['Prediction'])
-        for row in test_bank:
-            id += 1
-            true_label.append(row[-1])
-            pre = label_predict_bank(tree, row)
-            pred_seq.append(pre)
-            writer.writerow([str(id)] + [str(pre)])
-    return error(true_label, pred_seq)
-
-
-
-tree_depth_13 = tree_build_bank(train_data, 13)
-
-print("******Prediction Error in Training Data Set for Bank******")
-print(calc_prediction_error_training_bank(tree_depth_13))
-print("******Prediction Error in Testing Data Set for Bank******")
-print(calc_prediction_error_testing_bank(tree_depth_13))
+print(calc_prediction_error_training_bank(tree))
+print(calc_prediction_error_testing_bank(tree))
